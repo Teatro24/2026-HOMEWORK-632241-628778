@@ -112,4 +112,8 @@ public class Partita {
     public void setCfu(int cfu) {
         this.giocatore.setCfu(cfu);
     }
+
+    public boolean giocatoreIsVivo() {
+        return this.giocatore.getCfu() > 0;
+    }
 }

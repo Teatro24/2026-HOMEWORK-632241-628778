@@ -4,75 +4,102 @@ import it.uniroma3.diadia.attrezzi.Attrezzo;
 
 /**
  * Classe Labirinto - rappresenta il labirinto del gioco.
- * Ha la responsabilita' di creare tutte le stanze, collegarle tra loro
- * e memorizzare qual e' la stanza iniziale (entrata) e quella finale (uscita).
+ * Il labirinto include stanze normali e stanze speciali:
+ * StanzaMagica, StanzaBuia, StanzaBloccata.
  *
- * @author studente
- * @version base
+ * Mappa del labirinto:
+ *
+ *                  [Biblioteca] <- stanza vincente
+ *                       |
+ *                    (nord)
+ *                       |
+ *             [Corridoio Segreto] <- StanzaBloccata (serve: passepartout)
+ *                       |
+ *                    (nord)
+ *                       |
+ *             [Corridoio Magico] <- StanzaMagica
+ *                       |
+ *                    (nord)
+ *                       |
+ *   [Laboratorio] -ovest-[Atrio]-est- [Aula N11]
+ *                       |
+ *                    (sud)
+ *                       |
+ *                  [Aula N10] <- StanzaBuia (serve: lanterna nella stanza)
+ *
+ * Oggetti:
+ *   Atrio        : osso
+ *   Aula N11     : passepartout  <- serve per sbloccare Corridoio Segreto
+ *   Laboratorio  : lanterna      <- serve per illuminare Aula N10
  */
 public class Labirinto {
 
     private Stanza stanzaIniziale;
     private Stanza stanzaVincente;
 
-    /**
-     * Costruisce il labirinto creando e collegando tutte le stanze.
-     */
     public Labirinto() {
         this.creaStanze();
     }
 
-    /**
-     * Crea tutte le stanze, le collega tra loro e posiziona gli attrezzi.
-     */
     private void creaStanze() {
 
-        /* crea gli attrezzi */
-        Attrezzo lanterna = new Attrezzo("lanterna", 3);
-        Attrezzo osso = new Attrezzo("osso", 1);
+        /* attrezzi */
+        Attrezzo osso          = new Attrezzo("osso", 1);
+        Attrezzo lanterna      = new Attrezzo("lanterna", 3);
+        Attrezzo passepartout  = new Attrezzo("passepartout", 1);
 
-        /* crea le stanze del labirinto */
-        Stanza atrio = new Stanza("Atrio");
-        Stanza aulaN11 = new Stanza("Aula N11");
-        Stanza aulaN10 = new Stanza("Aula N10");
+        /* stanze normali */
+        Stanza atrio      = new Stanza("Atrio");
+        Stanza aulaN11    = new Stanza("Aula N11");
         Stanza laboratorio = new Stanza("Laboratorio Campus");
-        Stanza biblioteca = new Stanza("Biblioteca");
+        Stanza biblioteca  = new Stanza("Biblioteca");
 
-        /* collega le stanze tramite le direzioni */
-        atrio.impostaStanzaAdiacente("nord", biblioteca);
-        atrio.impostaStanzaAdiacente("est", aulaN11);
-        atrio.impostaStanzaAdiacente("sud", aulaN10);
+        /* stanza speciale: buia (serve lanterna NELLA stanza per vederci) */
+        StanzaBuia aulaN10 = new StanzaBuia("Aula N10", "lanterna");
+
+        /* stanza speciale: magica (ogni 3 passaggi inverte la direzione) */
+        StanzaMagica corridoioMagico = new StanzaMagica("Corridoio Magico");
+
+        /* stanza speciale: bloccata (serve passepartout NELLA stanza per andare a nord) */
+        StanzaBloccata corridoioSegreto = new StanzaBloccata("Corridoio Segreto", "nord", "passepartout");
+
+        /* collegamenti */
+        atrio.impostaStanzaAdiacente("nord", corridoioMagico);
+        atrio.impostaStanzaAdiacente("est",  aulaN11);
+        atrio.impostaStanzaAdiacente("sud",  aulaN10);
         atrio.impostaStanzaAdiacente("ovest", laboratorio);
-        aulaN11.impostaStanzaAdiacente("est", laboratorio);
+
+        corridoioMagico.impostaStanzaAdiacente("nord", corridoioSegreto);
+        corridoioMagico.impostaStanzaAdiacente("sud",  atrio);
+
+        corridoioSegreto.impostaStanzaAdiacente("nord", biblioteca);
+        corridoioSegreto.impostaStanzaAdiacente("sud",  corridoioMagico);
+
+        aulaN11.impostaStanzaAdiacente("est",  laboratorio);
         aulaN11.impostaStanzaAdiacente("ovest", atrio);
+
         aulaN10.impostaStanzaAdiacente("nord", atrio);
-        aulaN10.impostaStanzaAdiacente("est", aulaN11);
+        aulaN10.impostaStanzaAdiacente("est",  aulaN11);
         aulaN10.impostaStanzaAdiacente("ovest", laboratorio);
-        laboratorio.impostaStanzaAdiacente("est", atrio);
+
+        laboratorio.impostaStanzaAdiacente("est",  atrio);
         laboratorio.impostaStanzaAdiacente("ovest", aulaN11);
-        biblioteca.impostaStanzaAdiacente("sud", atrio);
 
-        /* posiziona gli attrezzi nelle stanze */
-        aulaN10.addAttrezzo(lanterna);
+        biblioteca.impostaStanzaAdiacente("sud", corridoioSegreto);
+
+        /* posizionamento attrezzi */
         atrio.addAttrezzo(osso);
+        aulaN11.addAttrezzo(passepartout);      // passepartout per sbloccare il Corridoio Segreto
+        laboratorio.addAttrezzo(lanterna);      // lanterna per illuminare Aula N10
 
-        /* imposta l'entrata e l'uscita del labirinto */
         this.stanzaIniziale = atrio;
         this.stanzaVincente = biblioteca;
     }
 
-    /**
-     * Restituisce la stanza iniziale (entrata) del labirinto.
-     * @return la stanza di partenza
-     */
     public Stanza getStanzaIniziale() {
         return this.stanzaIniziale;
     }
 
-    /**
-     * Restituisce la stanza vincente (uscita) del labirinto.
-     * @return la stanza che fa vincere la partita
-     */
     public Stanza getStanzaVincente() {
         return this.stanzaVincente;
     }

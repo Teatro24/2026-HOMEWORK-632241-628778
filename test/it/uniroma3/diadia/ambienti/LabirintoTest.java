@@ -1,4 +1,5 @@
 package it.uniroma3.diadia.ambienti;
+
 import static org.junit.jupiter.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,6 @@ public class LabirintoTest {
         this.labirinto = new Labirinto();
     }
 
-    // Test su getStanzaIniziale()
     @Test
     public void testGetStanzaIniziale_nonNull() {
         assertNotNull(labirinto.getStanzaIniziale());
@@ -24,12 +24,6 @@ public class LabirintoTest {
     }
 
     @Test
-    public void testGetStanzaIniziale_diversaDaVincente() {
-        assertNotEquals(labirinto.getStanzaIniziale(), labirinto.getStanzaVincente());
-    }
-
-    // Test su getStanzaVincente()
-    @Test
     public void testGetStanzaVincente_nonNull() {
         assertNotNull(labirinto.getStanzaVincente());
     }
@@ -40,9 +34,38 @@ public class LabirintoTest {
     }
 
     @Test
-    public void testGetStanzaVincente_raggiungibile() {
-        Stanza iniziale = labirinto.getStanzaIniziale();
-        Stanza vincente = iniziale.getStanzaAdiacente("nord");
-        assertEquals(labirinto.getStanzaVincente(), vincente);
+    public void testStanzaIniziale_diversaDaVincente() {
+        assertNotEquals(labirinto.getStanzaIniziale(), labirinto.getStanzaVincente());
+    }
+
+    @Test
+    public void testPercorsoVersoBiblioteca_passaPerCorridoioMagico() {
+        // Atrio -> nord -> Corridoio Magico (StanzaMagica)
+        Stanza corridoioMagico = labirinto.getStanzaIniziale().getStanzaAdiacente("nord");
+        assertEquals("Corridoio Magico", corridoioMagico.getNome());
+    }
+
+    @Test
+    public void testAulaN10_eStanzaBuia() {
+        Stanza aulaN10 = labirinto.getStanzaIniziale().getStanzaAdiacente("sud");
+        assertTrue(aulaN10 instanceof StanzaBuia);
+    }
+
+    @Test
+    public void testCorridoioMagico_eStanzaMagica() {
+        Stanza corridoio = labirinto.getStanzaIniziale().getStanzaAdiacente("nord");
+        assertTrue(corridoio instanceof StanzaMagica);
+    }
+
+    @Test
+    public void testLabirintoHaLanternaInLaboratorio() {
+        Stanza laboratorio = labirinto.getStanzaIniziale().getStanzaAdiacente("ovest");
+        assertTrue(laboratorio.hasAttrezzo("lanterna"));
+    }
+
+    @Test
+    public void testLabirintoHaPassepartoutInAulaN11() {
+        Stanza aulaN11 = labirinto.getStanzaIniziale().getStanzaAdiacente("est");
+        assertTrue(aulaN11.hasAttrezzo("passepartout"));
     }
 }
